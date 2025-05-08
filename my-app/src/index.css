@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ‑-- zinc 950-50 palette from Tailwind */
+@layer base {
+  :root {
+    --background:        12 7%  12%;  /* zinc-950 */
+    --foreground:        0  0%  96%;  /* zinc-50 */
+
+    --card:              0  0%  12%;  /* zinc-950 */
+    --card-foreground:   0  0%  96%;  /* zinc-50 */
+
+    --popover:           0  0%  12%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary:           0  0%  96%;  /* text-zinc-50 */
+    --primary-foreground: 0 0% 12%;   /* bg-zinc-950 */
+
+    --secondary:         0  0%  20%;  /* zinc-800 */
+    --secondary-foreground: 0 0% 96%;
+
+    --muted:             0  0%  24%;  /* zinc-700 */
+    --muted-foreground:  0  0%  63%;  /* zinc-400 */
+
+    --accent:            0  0%  24%;
+    --accent-foreground: 0  0%  96%;
+
+    --destructive:       0  73%  45%; /* red-600 */
+    --destructive-foreground: 0 0% 96%;
+
+    --border:            0  0%  24%;  /* zinc-700 */
+    --input:             0  0%  24%;
+    --ring:              0  0%  30%;  /* zinc-600 */
+  }
+
+  /* optional “dark mode == same Zinc palette” */
+  .dark {
+    /* if you want a different scheme in dark mode you can override here;
+       this demo keeps the same values */
+  }
+}
