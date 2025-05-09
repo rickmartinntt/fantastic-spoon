@@ -1,9 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+
+// Helpers ────────────────────────────────────────────────
+const PERSONA_KEY = "personas";
+
+const loadPersonas = (): string[] => {
+  const raw = localStorage.getItem(PERSONA_KEY);
+  return raw ? (JSON.parse(raw) as string[]) : ["Default"];
+};
+
+const savePersonas = (list: string[]) =>
+  localStorage.setItem(PERSONA_KEY, JSON.stringify(list));
 
 const PersonaPage = () => {
+   /* PERSONAS ---------------------------------------------------------- */
+  const [personas, setPersonas] = useState<string[]>(() => loadPersonas());
+  const [currentPersona, setCurrentPersona] = useState<string>(personas[0]);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newPersona, setNewPersona] = useState("");
+  
   const [textareaContent, setTextareaContent] = useState(
     'I am a home loan specialist with a large national bank and my job is to process loan documents, extract data from loan documents, and identify issues with loan documents.'
   );
+  /* files ---------------------------------------------------------------- */
+  const [files, setFiles] = useState<File[]>([]);
+  /* handlers ------------------------------------------------------------- */
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    setFiles(Array.from(e.target.files));
+  };
+  useEffect(() => {
+    savePersonas(personas);
+    }, [personas]);
+  
+  const addPersona = () => {
+    if (!newPersona.trim()) return;
+    const updated = Array.from(new Set([...personas, newPersona.trim()]));
+    setPersonas(updated);
+    setCurrentPersona(newPersona.trim());
+    setNewPersona("");
+    setShowAddDialog(false);
+  };
 
   const handleCancel = () => {
     setTextareaContent(''); // Clear the content
@@ -16,35 +71,58 @@ const PersonaPage = () => {
         <div className="space-y-4">
           {/* Button Group */}
           <div className="space-x-2">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">Create</button>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">Edit</button>
-            <button className="bg-red-500 text-white px-4 py-2 rounded">Delete</button>
+            <Button className="bg-blue-500 text-white px-4 py-2 rounded">Create</Button>
+            <Button className="bg-blue-500 text-white px-4 py-2 rounded">Edit</Button>
+            <Button className="bg-red-500 text-white px-4 py-2 rounded">Delete</Button>
           </div>
 
           {/* Select Boxes */}
-          <div className="space-y-2">
-            <select className="w-full px-3 py-2 border rounded">
-              <option>Persona Name</option>
-              {/* Add options here */}
-            </select>
-            <select className="w-full px-3 py-2 border rounded">
-              <option>Persona Type</option>
-              {/* Add options here */}
-            </select>
-          </div>
+           <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Persona Name</Label>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setShowAddDialog(true)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
 
-          {/* File Browser */}
-          <input type="file" className="w-full px-3 py-2 border rounded" />
+              <Select
+                value={currentPersona}
+                onValueChange={(v) => setCurrentPersona(v)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select persona" />
+                </SelectTrigger>
+                <SelectContent>
+                  {personas.map((col) => (
+                    <SelectItem value={col} key={col}>
+                      {col}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+          {/* File Browser */} <Label htmlFor="fileInput">Choose files</Label>
+            <Input
+              id="fileInput"
+              type="file"
+              multiple
+              onChange={handleFileChange}
+            />
         </div>
         {/* Button Group */}
           <div className="flex space-x-2 mt-4">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
-            <button
+            <Button className="bg-blue-500 text-white px-4 py-2 rounded">Save</Button>
+            <Button
               className="bg-gray-500 text-white px-4 py-2 rounded"
               onClick={handleCancel}
             >
               Cancel
-            </button>
+            </Button>
           </div>
       </div>
 
@@ -61,6 +139,41 @@ const PersonaPage = () => {
           />
         </div>
       </div>
+      {/* “Add collection” dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New Persona</DialogTitle>
+            <DialogDescription>
+              Enter a name for the new collection.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <Label htmlFor="newPersona">Name</Label>
+            <Input
+              id="newPersona"
+              placeholder="e.g. Invoices"
+              value={newPersona}
+              onChange={(e) => setNewPersona(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addPersona()}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setNewPersona("");
+                setShowAddDialog(false);
+              }}
+            >
+                Cancel
+              </Button>
+              <Button onClick={addPersona}>Add</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </div>
   );
 };
