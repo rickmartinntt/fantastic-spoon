@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react"
-import { Link } from "@tanstack/react-router"
-import { Plus } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/ui/select"
+} from "../components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +17,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../components/ui/dialog"
-import { Label } from "../components/ui/label"
+} from "../components/ui/dialog";
+import { Label } from "../components/ui/label";
 import {
   Table,
   TableBody,
@@ -27,82 +26,60 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/ui/table"
+} from "../components/ui/table";
 
 // Helpers ────────────────────────────────────────────────
-const COLLECTION_KEY = "collections"
+const COLLECTION_KEY = "collections";
 
 const loadCollections = (): string[] => {
-  const raw = localStorage.getItem(COLLECTION_KEY)
-  return raw ? (JSON.parse(raw) as string[]) : ["Default"]
-}
+  const raw = localStorage.getItem(COLLECTION_KEY);
+  return raw ? (JSON.parse(raw) as string[]) : ["Default"];
+};
 
 const saveCollections = (list: string[]) =>
-  localStorage.setItem(COLLECTION_KEY, JSON.stringify(list))
+  localStorage.setItem(COLLECTION_KEY, JSON.stringify(list));
 
 // Main component ─────────────────────────────────────────
 export default function HomePage() {
-  /* header links don’t need state */
-
   /* collections ---------------------------------------------------------- */
-  const [collections, setCollections] = useState<string[]>(() => loadCollections())
-  const [currentCollection, setCurrentCollection] = useState<string>(collections[0])
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [newCollection, setNewCollection] = useState("")
+  const [collections, setCollections] = useState<string[]>(() => loadCollections());
+  const [currentCollection, setCurrentCollection] = useState<string>(collections[0]);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newCollection, setNewCollection] = useState("");
 
   /* permissions ---------------------------------------------------------- */
-  const permissionOptions = ["Private", "Org-Wide", "Public"]
-  const [permission, setPermission] = useState(permissionOptions[0])
+  const permissionOptions = ["Private", "Org-Wide", "Public"];
+  const [permission, setPermission] = useState(permissionOptions[0]);
 
   /* files ---------------------------------------------------------------- */
-  const [files, setFiles] = useState<File[]>([])
+  const [files, setFiles] = useState<File[]>([]);
 
   /* keep localStorage in sync */
   useEffect(() => {
-    saveCollections(collections)
-  }, [collections])
+    saveCollections(collections);
+  }, [collections]);
 
   /* handlers ------------------------------------------------------------- */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return
-    setFiles(Array.from(e.target.files))
-  }
+    if (!e.target.files) return;
+    setFiles(Array.from(e.target.files));
+  };
 
   const addCollection = () => {
-    if (!newCollection.trim()) return
-    const updated = Array.from(new Set([...collections, newCollection.trim()]))
-    setCollections(updated)
-    setCurrentCollection(newCollection.trim())
-    setNewCollection("")
-    setShowAddDialog(false)
-  }
+    if (!newCollection.trim()) return;
+    const updated = Array.from(new Set([...collections, newCollection.trim()]));
+    setCollections(updated);
+    setCurrentCollection(newCollection.trim());
+    setNewCollection("");
+    setShowAddDialog(false);
+  };
 
   /* render --------------------------------------------------------------- */
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Header / Nav bar */}
-      <header className="flex items-center justify-between border-b bg-background px-6 py-4">
-        <h1 className="text-2xl font-bold tracking-tight">Document Miner</h1>
-
-        <nav className="flex gap-4">
-          <Button variant="link" asChild>
-            <Link to="/persona">Persona</Link>
-          </Button>
-          <Button variant="link" asChild>
-            <Link to="/prompts">Prompts</Link>
-          </Button>
-          <Button variant="link" asChild>
-            <Link to="/run-query">Run&nbsp;Query</Link>
-          </Button>
-          <Button variant="link" asChild>
-            <Link to="/settings">Settings</Link>
-          </Button>
-        </nav>
-      </header>
-
       {/* Main area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar (left) */}
+        {/* Sidebar components */}
         <aside className="w-72 shrink-0 border-r p-6">
           <div className="space-y-4">
             {/* File selector */}
@@ -191,9 +168,9 @@ export default function HomePage() {
                       variant="link"
                       size="sm"
                       onClick={() => {
-                        const url = URL.createObjectURL(file)
-                        window.open(url, "_blank")
-                        setTimeout(() => URL.revokeObjectURL(url), 3000)
+                        const url = URL.createObjectURL(file);
+                        window.open(url, "_blank");
+                        setTimeout(() => URL.revokeObjectURL(url), 3000);
                       }}
                     >
                       Open
@@ -226,23 +203,23 @@ export default function HomePage() {
 
           <div className="space-y-2">
             <Label htmlFor="newCollection">Name</Label>
-              <Input
-                id="newCollection"
-                placeholder="e.g. Invoices"
-                value={newCollection}
-                onChange={(e) => setNewCollection(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addCollection()}
-              />
-            </div>
+            <Input
+              id="newCollection"
+              placeholder="e.g. Invoices"
+              value={newCollection}
+              onChange={(e) => setNewCollection(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addCollection()}
+            />
+          </div>
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setNewCollection("")
-                  setShowAddDialog(false)
-                }}
-              >
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setNewCollection("");
+                setShowAddDialog(false);
+              }}
+            >
                 Cancel
               </Button>
               <Button onClick={addCollection}>Add</Button>
@@ -250,6 +227,5 @@ export default function HomePage() {
           </DialogContent>
         </Dialog>
     </div>
-  )
+  );
 }
-

@@ -1,11 +1,12 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
-import { RouterProvider, router } from "./lib/router";
-import "./index.css" 
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { RouterProvider } from '@tanstack/react-router';
+import { router } from './lib/router'; // Adjust the path to your router file
+import './index.css'; 
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+// Render the app
+ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
