@@ -1,0 +1,6 @@
+{
+  "containerEnv": {
+    "VITE_STORAGE_ACCOUNT": "${{ codespaceSecrets.VITE_STORAGE_ACCOUNT }}",
+    "VITE_STORAGE_SAS": "${{ codespaceSecrets.VITE_STORAGE_SAS }}"
+  }
+}

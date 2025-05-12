@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import { useFileUpload } from "../hooks/useFileUpload"; // Import the custom hook
+import { useAzureBlobUpload } from "../hooks/useAzureBlobUpload"; // Import the custom hook
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -54,11 +54,7 @@ export default function HomePage() {
 
   /* files ---------------------------------------------------------------- */
   const [files, setFiles] = useState<File[]>([]);
-  const uploadUrl = "https://api.example.com/upload"; // Replace with your actual API endpoint
-  const { uploading, response, uploadFiles } = useFileUpload(uploadUrl);
-  const handleUpload = () => {
-    uploadFiles(files); // Call the hook function to upload files
-  };
+  const { uploading, error, uploadFiles } = useAzureBlobUpload();
   /* keep localStorage in sync */
   useEffect(() => {
     saveCollections(collections);
@@ -79,6 +75,11 @@ export default function HomePage() {
     setShowAddDialog(false);
   };
 
+
+const handleUpload = () => {
+  uploadFiles(currentCollection, files);
+};
+
   /* render --------------------------------------------------------------- */
   return (
     <div className="flex min-h-screen flex-col">
@@ -95,6 +96,7 @@ export default function HomePage() {
               multiple
               onChange={handleFileChange}
             />
+            {error && <p className="text-red-600">{error}</p>}
             <Button 
               className="bg-blue-500 text-white px-4 py-2 rounded"
               onClick={handleUpload} disabled={uploading}>
