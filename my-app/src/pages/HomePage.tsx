@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
+import { useFileUpload } from "../hooks/useFileUpload"; // Import the custom hook
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -53,7 +54,11 @@ export default function HomePage() {
 
   /* files ---------------------------------------------------------------- */
   const [files, setFiles] = useState<File[]>([]);
-
+  const uploadUrl = "https://api.example.com/upload"; // Replace with your actual API endpoint
+  const { uploading, response, uploadFiles } = useFileUpload(uploadUrl);
+  const handleUpload = () => {
+    uploadFiles(files); // Call the hook function to upload files
+  };
   /* keep localStorage in sync */
   useEffect(() => {
     saveCollections(collections);
@@ -90,12 +95,18 @@ export default function HomePage() {
               multiple
               onChange={handleFileChange}
             />
+            <Button 
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={handleUpload} disabled={uploading}>
+              {uploading ? "Uploading..." : "Upload Files"}
+            </Button>
 
             {/* Collection dropdown w/ add-button */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Collection Name</Label>
-                <Button
+                <Button 
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
                   size="icon"
                   variant="outline"
                   onClick={() => setShowAddDialog(true)}
@@ -149,18 +160,32 @@ export default function HomePage() {
                 <TableHead>File Name</TableHead>
                 <TableHead>File Size</TableHead>
                 <TableHead>File Date</TableHead>
+                <TableHead>File Status</TableHead>
                 <TableHead>File Link</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {files.map((file) => (
-                <TableRow key={file.name + file.size}>
+              {files.map((file, index) => (
+                <TableRow 
+                  key={file.name + file.size}
+                  className={`border-b border-gray-300 ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                  }`}
+                >
                   <TableCell>{currentCollection}</TableCell>
                   <TableCell>{file.name}</TableCell>
                   <TableCell>{(file.size / 1024).toFixed(1)} KB</TableCell>
                   <TableCell>
                     {new Date(file.lastModified).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    {response && (
+                      <div>
+                        <p>{response.message}</p>
+                        {response.data && <pre>{JSON.stringify(response.data, null, 2)}</pre>}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>
                     {/* To download again we need a blob url */}
