@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import { useAzureBlobUpload } from "../hooks/useAzureBlobUpload"; // Import the custom hook
+import { Progress } from "../components/ui/progress";   
+import { useAzureBlobUpload } from "../hooks/useAzureBlobUpload";
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -47,6 +48,18 @@ export default function HomePage() {
   const [currentCollection, setCurrentCollection] = useState<string>(collections[0]);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newCollection, setNewCollection] = useState("");
+  useEffect(() => {
+    saveCollections(collections);
+  }, [collections]);
+  
+  const addCollection = () => {
+      if (!newCollection.trim()) return;
+      const updated = Array.from(new Set([...collections, newCollection.trim()]));
+      setCollections(updated);
+      setCurrentCollection(newCollection.trim());
+      setNewCollection("");
+      setShowAddDialog(false);
+  };
 
   /* permissions ---------------------------------------------------------- */
   const permissionOptions = ["Private", "Org-Wide", "Public"];
@@ -54,31 +67,18 @@ export default function HomePage() {
 
   /* files ---------------------------------------------------------------- */
   const [files, setFiles] = useState<File[]>([]);
-  const { uploading, error, uploadFiles } = useAzureBlobUpload();
-  /* keep localStorage in sync */
-  useEffect(() => {
-    saveCollections(collections);
-  }, [collections]);
+  const { uploading, items, uploadFiles, update } = useAzureBlobUpload();
+
+
 
   /* handlers ------------------------------------------------------------- */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     setFiles(Array.from(e.target.files));
   };
-
-  const addCollection = () => {
-    if (!newCollection.trim()) return;
-    const updated = Array.from(new Set([...collections, newCollection.trim()]));
-    setCollections(updated);
-    setCurrentCollection(newCollection.trim());
-    setNewCollection("");
-    setShowAddDialog(false);
+  const handleUpload = () => {
+    uploadFiles(currentCollection, files);
   };
-
-
-const handleUpload = () => {
-  uploadFiles(currentCollection, files);
-};
 
   /* render --------------------------------------------------------------- */
   return (
@@ -96,7 +96,7 @@ const handleUpload = () => {
               multiple
               onChange={handleFileChange}
             />
-            {error && <p className="text-red-600">{error}</p>}
+           
             <Button 
               className="bg-blue-500 text-white px-4 py-2 rounded"
               onClick={handleUpload} disabled={uploading}>
@@ -160,55 +160,61 @@ const handleUpload = () => {
               <TableRow>
                 <TableHead>Collection</TableHead>
                 <TableHead>File Name</TableHead>
-                <TableHead>File Size</TableHead>
-                <TableHead>File Date</TableHead>
-                <TableHead>File Status</TableHead>
-                <TableHead>File Link</TableHead>
+                <TableHead>Size</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Status / Progress</TableHead>
+                <TableHead>Link</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {files.map((file, index) => (
-                <TableRow 
-                  key={file.name + file.size}
-                  className={`border-b border-gray-300 ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  }`}
-                >
+              {items.map((it) => (
+                <TableRow key={it.file.name + it.file.lastModified}>
                   <TableCell>{currentCollection}</TableCell>
-                  <TableCell>{file.name}</TableCell>
-                  <TableCell>{(file.size / 1024).toFixed(1)} KB</TableCell>
+                  <TableCell>{it.file.name}</TableCell>
+                  <TableCell>{(it.file.size / 1024).toFixed(1)} KB</TableCell>
                   <TableCell>
-                    {new Date(file.lastModified).toLocaleDateString()}
+                    {new Date(it.file.lastModified).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>
-                    {response && (
-                      <div>
-                        <p>{response.message}</p>
-                        {response.data && <pre>{JSON.stringify(response.data, null, 2)}</pre>}
-                      </div>
+
+                  {/* progress & message */}
+                  <TableCell className="w-56">
+                    {it.status === "uploading" && (
+                      <>
+                        <Progress value={it.progress} className="h-2 mb-1" />
+                        <span className="text-sm text-gray-500">
+                          {it.progress} %
+                        </span>
+                      </>
+                    )}
+
+                    {it.status === "success" && (
+                      <span className="text-green-600">{it.message}</span>
+                    )}
+
+                    {it.status === "error" && (
+                      <span className="text-red-600">{it.message}</span>
                     )}
                   </TableCell>
+
+                  {/* link */}
                   <TableCell>
-                    {/* To download again we need a blob url */}
-                    <Button
-                      variant="link"
-                      size="sm"
-                      onClick={() => {
-                        const url = URL.createObjectURL(file);
-                        window.open(url, "_blank");
-                        setTimeout(() => URL.revokeObjectURL(url), 3000);
-                      }}
-                    >
-                      Open
-                    </Button>
+                    {it.url && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => window.open(it.url, "_blank")}
+                      >
+                        Open
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
 
-              {files.length === 0 && (
+              {items.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
+                  <TableCell colSpan={6} className="text-center">
                     No files selected
                   </TableCell>
                 </TableRow>
