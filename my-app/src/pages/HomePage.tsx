@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listBlobs, useAzureBlobUpload } from "../hooks/useAzureBlobUpload";
 import type { ExistingBlob, UploadInfo } from "../hooks/useAzureBlobUpload";
-
+import FileViewerModal from "../components/ui/fileviewer"; 
 import { Plus } from "lucide-react";
 import { Progress } from "../components/ui/progress";
 import { Button } from "../components/ui/button";
@@ -115,6 +115,29 @@ export default function HomePage() {
     setFiles([]); // clear picker
   };
 
+  /* ───── pagination state & helpers */
+  const ROWS_PER_PAGE = 10;
+  const [page, setPage] = useState(1);
+
+  /* set file viewer helpers*/
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [viewerFile, setViewerFile] =
+  useState<{ url: string; fileName: string } | null>(null);
+
+
+  // Reset to page 1 on collection switch or when row count changes
+  useEffect(() => setPage(1), [
+    currentCollection,
+    items.length,
+    stored.length,
+  ]);
+
+  /* ───────────────────────────────────────── derived rows */
+  const allRows = [...stored, ...items];
+  const totalPages = Math.max(1, Math.ceil(allRows.length / ROWS_PER_PAGE));
+  const firstIdx = (page - 1) * ROWS_PER_PAGE;
+  const pageRows = allRows.slice(firstIdx, firstIdx + ROWS_PER_PAGE);
+
   /* ───────────────────────────────────────── render */
   return (
     <div className="flex min-h-screen flex-col">
@@ -202,7 +225,7 @@ export default function HomePage() {
             </TableHeader>
 
             <TableBody>
-              {[...stored, ...items].map((row) => (
+              {pageRows.map((row) => (
                 <TableRow
                   key={row.collection + row.file.name + row.status}
                 >
@@ -237,16 +260,19 @@ export default function HomePage() {
                       <Button
                         variant="link"
                         size="sm"
-                        onClick={() => window.open(row.url, "_blank")}
+                        onClick={() => {
+                          setViewerFile({ url: row.url!, fileName: row.file.name });
+                          setViewerOpen(true);
+                        }}
                       >
-                        Open
+                        View File
                       </Button>
                     )}
                   </TableCell>
                 </TableRow>
               ))}
 
-              {stored.length + items.length === 0 && (
+              {allRows.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center">
                     No files in this collection
@@ -255,9 +281,47 @@ export default function HomePage() {
               )}
             </TableBody>
           </Table>
+
+          {/* pagination controls */}
+          {allRows.length > 0 && (
+            <div className="flex items-center justify-between mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Prev
+              </Button>
+
+              <span className="text-sm">
+                Page {page} of {totalPages}
+              </span>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </main>
       </div>
-
+      {/* view file dialog */}
+      {viewerFile && (
+        <FileViewerModal
+          open={viewerOpen}
+          onOpenChange={(o) => {
+            if (!o) setViewerFile(null); // clear when closed
+            setViewerOpen(o);
+          }}
+          url={viewerFile.url}
+          fileName={viewerFile.fileName}
+        />
+      )}
       {/* add-collection dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent>

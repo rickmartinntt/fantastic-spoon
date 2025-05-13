@@ -1,6 +1,9 @@
+@import "react-pdf/dist/esm/Page/TextLayer.css";
+@import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 /* ‑-- zinc 950-50 palette from Tailwind */
 @layer base {
