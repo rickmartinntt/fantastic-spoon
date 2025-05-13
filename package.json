@@ -2,5 +2,9 @@
   "dependencies": {
     "@azure/cosmos": "^4.3.0",
     "shadcn-ui": "^0.9.5"
+  },  
+  "scripts": {
+    "dev": "concurrently \"vite\" \"tsx watch server/server.ts\""
   }
+
 }
