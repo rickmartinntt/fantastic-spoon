@@ -43,10 +43,11 @@ export function useAzureBlobUpload() {
     );
 
   /* main function called by the page */
-  const uploadFiles = useCallback(
-    async (containerName: string, files: File[]) => {
-      if (!containerName || files.length === 0) return;
-
+const uploadFiles = useCallback(
+  async (containerNameRaw: string, files: File[]) => {
+    const containerName = containerNameRaw.toLowerCase();   // <─ here
+    if (!containerName || files.length === 0) return;
+      
       /* initialise table rows */
       setItems(
         files.map((f) => ({
@@ -100,4 +101,35 @@ export function useAzureBlobUpload() {
   );
 
   return { uploading, items, uploadFiles, update };
+}
+export interface ExistingBlob {
+  name: string;
+  size: number;
+  lastModified: Date | undefined;
+  url: string;
+}
+
+
+export async function listBlobs(
+  containerName: string
+  ): Promise<ExistingBlob[]> {
+  const container = serviceClient.getContainerClient(
+    containerName.toLowerCase()
+  );
+
+  const result: ExistingBlob[] = [];
+  if (!(await container.exists())) return result;
+
+  for await (const b of container.listBlobsFlat()) {
+    result.push({
+      name: b.name,
+      size: b.properties.contentLength ?? 0,
+      lastModified: b.properties.lastModified,
+      url:
+        `${container.url}/` +
+        encodeURIComponent(b.name) +
+        (sas.startsWith("?") ? sas : "?" + sas),
+    });
+  }
+  return result;
 }
