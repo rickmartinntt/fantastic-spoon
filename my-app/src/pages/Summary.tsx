@@ -81,7 +81,7 @@ function formatTimestamp(iso: string) {
          `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export default function ResultsPage() {
+export default function SummaryPage() {
   const qc = useQueryClient();
 
   const [database]  = useState(DB_NAME);
