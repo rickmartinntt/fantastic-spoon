@@ -2,10 +2,12 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { Route, RootRoute } from "@tanstack/react-router";
 import React from "react";
 import HomePage from "../pages/HomePage";
+import UploadPage from "../pages/UploadDoc";
+import BatchPage from "../pages/BatchUpload";
 import PersonaPage from "../pages/Persona";
 import QueryPage from "../pages/Query";
 import PromptsPage from "../pages/Prompts";
-import SettingsPage from "../pages/Settings";
+import SettingsPage from "../pages/BatchUpload";
 import Layout from "../pages/Layout";
 
 const rootRoute = new RootRoute({ component: Layout });
@@ -16,6 +18,16 @@ const homeRoute = new Route({
 });
 
 // Define additional routes for each page
+const uploadRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/upload",
+  component: UploadPage,
+});
+const batchRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/batch",
+  component: BatchPage,
+});
 const personaRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/persona",
@@ -43,6 +55,8 @@ const settingsRoute = new Route({
 // Add all routes to the route tree
 const routeTree = rootRoute.addChildren([
   homeRoute,
+  uploadRoute,
+  batchRoute,
   personaRoute,
   queryRoute,
   promptsRoute,
