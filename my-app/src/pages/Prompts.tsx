@@ -107,7 +107,7 @@ const DATA_TYPE_OPTIONS: { value: DataType; label: string }[] = [
 
 const DB_NAME        = "Loan Participation";
 const CONTAINER_NAME = "Queries";
-const DOC_ID         = "Queries";
+const DOC_ID         = "ParticipationAgreement";
 
 const EMPTY_FIELD: FieldBlock = {
   fieldName: "",

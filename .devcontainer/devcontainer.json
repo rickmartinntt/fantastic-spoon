@@ -2,10 +2,10 @@
   "containerEnv": {
     "VITE_STORAGE_ACCOUNT": "${{ codespaceSecrets.VITE_STORAGE_ACCOUNT }}",
     "VITE_STORAGE_SAS": "${{ codespaceSecrets.VITE_STORAGE_SAS }}",
-    "COSMOS_URI":  "${env:COSMOS_URI}",
+    "COSMOS_ENDPOINT":  "${env:COSMOS_ENDPOINT}",
     "COSMOS_KEY":  "${env:COSMOS_KEY}",
     "COSMOS_DB":   "LoanParticipation",      // non-secret, can stay here
-    "COSMOS_CONTAINER": "Queries"
+    "CON_QUERIES": "Queries"
     
   }
 }

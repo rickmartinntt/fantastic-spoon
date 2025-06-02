@@ -32,7 +32,8 @@ function Layout() {
       label: 'Document Analysis',  // Group 2
       items: [
         { to: '/upload', label: 'Document Upload' },
-        { to: '/query', label: 'Run Query' },    // make sure this route exists
+        { to: '/query', label: 'Results Analysis' },    // make sure this route exists
+        { to: '/quality', label: 'Quality Review' },    // make sure this route exists
       ],
     },
     {

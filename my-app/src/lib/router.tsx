@@ -9,6 +9,7 @@ import QueryPage from "../pages/Query";
 import PromptsPage from "../pages/Prompts";
 import SettingsPage from "../pages/BatchUpload";
 import Layout from "../pages/Layout";
+import QualityPage from "../pages/Quality";
 
 const rootRoute = new RootRoute({ component: Layout });
 const homeRoute = new Route({
@@ -40,6 +41,12 @@ const queryRoute = new Route({
   component: QueryPage,
 });
 
+const qualityRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/quality",
+  component: QualityPage,
+});
+
 const promptsRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/prompts",
@@ -61,6 +68,7 @@ const routeTree = rootRoute.addChildren([
   queryRoute,
   promptsRoute,
   settingsRoute,
+  qualityRoute
 ]);
 
 const router = createRouter({

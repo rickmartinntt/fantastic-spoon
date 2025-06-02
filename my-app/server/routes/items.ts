@@ -15,7 +15,7 @@ function must(name: string, value?: string): string {
   Cosmos DB client + database
 ─────────────────────────────────────────────*/
 const client = new CosmosClient({
-  endpoint: must("COSMOS_URI", process.env.COSMOS_URI),
+  endpoint: must("COSMOS_ENDPOINT", process.env.COSMOS_ENDPOINT),
   key:      must("COSMOS_KEY", process.env.COSMOS_KEY)
 });
 
